@@ -1,0 +1,7 @@
+apiVersion: v1                    # ConfigMap ki core API
+kind: ConfigMap                   # Non-sensitive config ka object
+metadata:
+  name: hello-web-config          # Deployment isi naam se reference karega
+data:                             # Key-value pairs
+  APP_VERSION: "v4"               # Cluster ki current version se match
+  WELCOME_MESSAGE: "Hello from ConfigMap"

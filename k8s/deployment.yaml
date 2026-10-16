@@ -1,39 +1,41 @@
-apiVersion: apps/v1               # Deployment ki API version
-kind: Deployment                  # Resource ka type
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: hello-web                 # Deployment ka naam
+  name: hello-web
 spec:
-  replicas: 2                     # Hamesha 2 pods chalen
+  replicas: 2
   selector:
     matchLabels:
-      app: hello-web              # Ye label wale pods is Deployment ke hain
-  template:                       # Pod ka blueprint
+      app: hello-web
+  template:
     metadata:
       labels:
         app: hello-web
     spec:
       containers:
       - name: hello-web
-        image: akbar2339124/hello-devops-web:v1   # Docker Hub wali image
+        image: akbar2339124/hello-devops-web:4   # Cluster ki current image
         ports:
-        - containerPort: 3000     # App is port par sun raha hai
-        env:
-        - name: APP_VERSION       # /api/version isi ko dikhata hai
-          value: "v1"
+        - containerPort: 3000
+        envFrom:                                 # Sab keys ko env variables banata hai
+        - configMapRef:
+            name: hello-web-config
+        - secretRef:
+            name: hello-web-secret
         resources:
-          requests:               # Minimum guaranteed resources
+          requests:
             cpu: "100m"
             memory: "128Mi"
-          limits:                 # Maximum allowed
+          limits:
             cpu: "500m"
             memory: "256Mi"
-        readinessProbe:           # Kya pod traffic lene ke liye ready hai?
+        readinessProbe:
           httpGet:
             path: /api/health
             port: 3000
           initialDelaySeconds: 5
           periodSeconds: 10
-        livenessProbe:            # Kya pod zinda hai?
+        livenessProbe:
           httpGet:
             path: /api/health
             port: 3000

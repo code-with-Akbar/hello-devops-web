@@ -30,11 +30,11 @@ pipeline {
             }
         }
 
- 	        stage('Deploy to Kubernetes') {
+ 	                stage('Deploy to Kubernetes') {
             steps {
                 sh '''
 cat > patch.json <<EOF
-{"spec":{"template":{"spec":{"containers":[{"name":"hello-web","image":"$IMAGE","env":[{"name":"APP_VERSION","value":"v$BUILD_NUMBER"}]}]}}}}
+{"spec":{"template":{"spec":{"containers":[{"name":"hello-web","image":"$IMAGE"}]}}}}
 EOF
 kubectl patch deployment hello-web --patch-file patch.json
 if ! kubectl rollout status deployment/hello-web --timeout=120s; then
