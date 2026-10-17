@@ -14,7 +14,7 @@ spec:
       labels:
         app: {{ .Values.appName }}
     spec:
-      securityContext:                 # Pod level
+      securityContext:
         runAsNonRoot: true
         runAsUser: 100
         runAsGroup: 101
@@ -30,7 +30,7 @@ spec:
             name: {{ .Release.Name }}-config
         - secretRef:
             name: {{ .Values.secret.name }}
-	   securityContext:               # Container level
+        securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           capabilities:
