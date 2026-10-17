@@ -30,13 +30,13 @@ pipeline {
             }
         }
 
- 	                        stage('Deploy with Helm') {
+ 	                                stage('Deploy with Helm') {
             steps {
                 sh '''
 helm upgrade --install hello-web ./hello-web-chart \
   --set image.tag=$BUILD_NUMBER \
   --set config.appVersion=v$BUILD_NUMBER \
-  --wait --timeout 120s
+  --atomic --wait --timeout 120s
 '''
             }
         }
@@ -55,7 +55,6 @@ helm upgrade --install hello-web ./hello-web-chart \
             echo "Deployed ${IMAGE}"
         }
         failure {
-            sh 'helm rollback hello-web 0 || true'
             echo "========== PIPELINE FAILED, helm rollback try kiya =========="
         }
     }
