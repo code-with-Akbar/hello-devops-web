@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        IMAGE = "akbar2339124/hello-devops-web:${BUILD_NUMBER}"
-	    KUBECONFIG = "/var/jenkins_home/.kube/config"
-
+        IMAGE       = "akbar2339124/hello-devops-web:${BUILD_NUMBER}"
+        KUBECONFIG  = "/var/jenkins_home/.kube/config"
+        TRIVY_CACHE = "/var/jenkins_home/.trivy-cache"
     }
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
-        timeout(time: 20, unit: 'MINUTES')
+        timeout(time: 30, unit: 'MINUTES')
         timestamps()
     }
 
@@ -18,9 +18,21 @@ pipeline {
     }
 
     stages {
+        stage('Security: Code Scan') {
+            steps {
+                sh 'trivy fs --scanners vuln,secret,misconfig --severity CRITICAL --ignore-unfixed --skip-dirs node_modules --cache-dir $TRIVY_CACHE --exit-code 1 .'
+            }
+        }
+
         stage('Build Image') {
             steps {
                 sh 'docker build -t $IMAGE .'
+            }
+        }
+
+        stage('Security: Image Scan') {
+            steps {
+                sh 'trivy image --severity CRITICAL --ignore-unfixed --cache-dir $TRIVY_CACHE --exit-code 1 $IMAGE'
             }
         }
 
@@ -30,7 +42,7 @@ pipeline {
             }
         }
 
- 	                                stage('Deploy with Helm') {
+        stage('Deploy with Helm') {
             steps {
                 sh '''
 helm upgrade --install hello-web ./hello-web-chart \
@@ -41,21 +53,20 @@ helm upgrade --install hello-web ./hello-web-chart \
             }
         }
 
-                stage('Verify') {
+        stage('Verify') {
             steps {
                 sh 'helm list'
-                sh 'kubectl get deployment hello-web -o jsonpath="{.spec.template.spec.containers[0].image}"; echo'
                 sh 'kubectl get pods -l app=hello-web'
             }
         }
     }
 
-        post {
+    post {
         success {
             echo "Deployed ${IMAGE}"
         }
         failure {
-            echo "========== PIPELINE FAILED, helm rollback try kiya =========="
+            echo "========== PIPELINE FAILED: scan ya deploy mein masla. Log dekho. =========="
         }
     }
 }
