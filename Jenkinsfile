@@ -30,37 +30,33 @@ pipeline {
             }
         }
 
- 	                stage('Deploy to Kubernetes') {
+ 	                        stage('Deploy with Helm') {
             steps {
                 sh '''
-cat > patch.json <<EOF
-{"spec":{"template":{"spec":{"containers":[{"name":"hello-web","image":"$IMAGE"}]}}}}
-EOF
-kubectl patch deployment hello-web --patch-file patch.json
-if ! kubectl rollout status deployment/hello-web --timeout=120s; then
-  echo "Rollout fail hua, pichle stable version par rollback"
-  kubectl rollout undo deployment/hello-web
-  exit 1
-fi
+helm upgrade --install hello-web ./hello-web-chart \
+  --set image.tag=$BUILD_NUMBER \
+  --set config.appVersion=v$BUILD_NUMBER \
+  --wait --timeout 120s
 '''
             }
         }
 
-        stage('Verify') {
+                stage('Verify') {
             steps {
+                sh 'helm list'
                 sh 'kubectl get deployment hello-web -o jsonpath="{.spec.template.spec.containers[0].image}"; echo'
                 sh 'kubectl get pods -l app=hello-web'
             }
         }
     }
 
-    post {
+        post {
         success {
             echo "Deployed ${IMAGE}"
         }
         failure {
-                    echo "========== PIPELINE FAILED =========="
-
+            sh 'helm rollback hello-web 0 || true'
+            echo "========== PIPELINE FAILED, helm rollback try kiya =========="
         }
     }
 }
