@@ -1,0 +1,30 @@
+appName: hello-web
+
+replicaCount: 2
+
+image:
+  repository: akbar2339124/hello-devops-web
+  tag: "5"
+  pullPolicy: IfNotPresent
+
+config:
+  appVersion: "v4"
+  welcomeMessage: "Hello from ConfigMap"
+
+secret:
+  name: hello-web-secret
+
+service:
+  type: NodePort
+  port: 80
+  targetPort: 3000
+
+healthPath: /api/health
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "256Mi"

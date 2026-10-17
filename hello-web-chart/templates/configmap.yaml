@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  APP_VERSION: {{ .Values.config.appVersion | quote }}
+  WELCOME_MESSAGE: {{ .Values.config.welcomeMessage | quote }}
