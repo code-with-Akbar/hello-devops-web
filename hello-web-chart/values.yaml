@@ -4,11 +4,11 @@ replicaCount: 2
 
 image:
   repository: akbar2339124/hello-devops-web
-  tag: "5"
+  tag: "14"
   pullPolicy: IfNotPresent
 
 config:
-  appVersion: "v4"
+  appVersion: "v14"
   welcomeMessage: "Hello from ConfigMap"
 
 secret:
