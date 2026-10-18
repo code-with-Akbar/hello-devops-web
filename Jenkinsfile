@@ -71,12 +71,11 @@ git push https://$GIT_USER:$GIT_TOKEN@github.com/code-with-Akbar/hello-devops-we
             }
         }
 
-        stage('Verify Argo CD Sync') {
-            when { not { changelog '.*\\[skip ci\\].*' } }
+                stage('Verify Argo CD Sync') {
             steps {
                 sh '''
 TARGET=$(git rev-parse HEAD)
-echo "Argo CD se commit $TARGET ka sync maanga ja raha hai"
+echo "Target commit: $TARGET"
 
 kubectl annotate application hello-web -n argocd argocd.argoproj.io/refresh=hard --overwrite
 
