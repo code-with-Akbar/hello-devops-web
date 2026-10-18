@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1        # Argo CD ka custom resource
+kind: Application                       # Ek app ka "thermostat"
+metadata:
+  name: hello-web
+  namespace: argocd                     # Application argocd namespace mein rehti hai
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/code-with-Akbar/hello-devops-web.git
+    targetRevision: main                # Kaunsi branch ko plan maanna hai
+    path: hello-web-chart               # Chart ka folder Git mein
+    helm:
+      valueFiles:
+        - values.yaml                   # Plan ki values (image tag yahin se)
+  destination:
+    server: https://kubernetes.default.svc   # Yahi cluster (minikube)
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true                       # Git se hata hua resource cluster se bhi hatao
+      selfHeal: true                    # Drift ko khud theek karo
+    syncOptions:
+      - CreateNamespace=true
