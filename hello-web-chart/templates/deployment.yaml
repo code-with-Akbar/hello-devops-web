@@ -30,6 +30,9 @@ spec:
             name: {{ .Release.Name }}-config
         - secretRef:
             name: {{ .Values.secret.name }}
+        env:
+        - name: HOSTNAME
+          value: "0.0.0.0"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
